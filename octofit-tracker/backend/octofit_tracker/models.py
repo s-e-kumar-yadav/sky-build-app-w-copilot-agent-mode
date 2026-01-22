@@ -1,6 +1,9 @@
+
 from djongo import models
 
+
 class Team(models.Model):
+    _id = models.ObjectIdField(primary_key=True, editable=False)
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
     class Meta:
@@ -8,34 +11,42 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
+
 class User(models.Model):
+    _id = models.ObjectIdField(primary_key=True, editable=False)
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=100)
-    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, related_name='members')
+    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, related_name='members', db_column='team_id', to_field='_id')
     class Meta:
         db_table = 'users'
     def __str__(self):
         return self.email
 
+
 class Activity(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
+    _id = models.ObjectIdField(primary_key=True, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities', db_column='user_id', to_field='_id')
     type = models.CharField(max_length=100)
     duration = models.IntegerField()  # in minutes
     date = models.DateField()
     class Meta:
         db_table = 'activities'
 
+
 class Workout(models.Model):
+    _id = models.ObjectIdField(primary_key=True, editable=False)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    suggested_for = models.ManyToManyField(User, related_name='workouts', blank=True)
+    suggested_for = models.ManyToManyField(User, related_name='workouts', blank=True, db_table='workout_suggested_for')
     class Meta:
         db_table = 'workouts'
     def __str__(self):
         return self.name
 
+
 class Leaderboard(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leaderboard_entries')
+    _id = models.ObjectIdField(primary_key=True, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leaderboard_entries', db_column='user_id', to_field='_id')
     score = models.IntegerField()
     class Meta:
         db_table = 'leaderboard'
